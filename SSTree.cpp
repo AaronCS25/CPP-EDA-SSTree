@@ -118,8 +118,29 @@ SSNode* SSNode::insert(SSNode* node, Data* _data) {
  * @return SSNode*: Nodo que contiene el dato (o nullptr si no se encuentra).
  */
 SSNode* SSNode::search(SSNode* node, Data* _data) {
-    // TODO: Implementar búsqueda del dato.
-    throw std::runtime_error("Not implemented yet");
+    if (node == nullptr) return nullptr;
+
+    if (node->isLeaf)
+    {
+        for (const auto& data : node->_data)
+        {
+            if (data == _data) { return node; }
+        }
+    }
+    else
+    {
+        SSNode* result = nullptr;
+        for (const auto& child : node->children)
+        {
+            if (child->intersectsPoint(_data->getEmbedding()))
+            {
+                result = search(child, _data);
+                if (result != nullptr) { return result; }
+            }
+        }
+    }
+    
+    return nullptr;
 }
 
 
@@ -150,6 +171,5 @@ void SSTree::insert(Data* _data) {
  * @return SSNode*: Nodo que contiene el dato (o nullptr si no se encuentra).
  */
 SSNode* SSTree::search(Data* _data) {
-    // TODO: Implementar búsqueda del dato.
-    throw std::runtime_error("Not implemented yet");
+    return root->search(root, _data);
 }
