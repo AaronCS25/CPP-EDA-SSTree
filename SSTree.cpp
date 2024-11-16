@@ -93,8 +93,10 @@ size_t SSNode::minVarianceSplit(const std::vector<float>& values) {
  * @return SSNode*: Nodo hoja adecuado para la inserción.
  */
 SSNode* SSNode::searchParentLeaf(SSNode* node, const Point& target) {
-    // TODO: Implementar búsqueda del nodo hoja adecuado.
-    throw std::runtime_error("Not implemented yet");
+    if (node->isLeaf) return node;
+
+    SSNode* child = node->findClosestChild(target);
+    return searchParentLeaf(child, target);
 }
 
 /**
@@ -105,8 +107,36 @@ SSNode* SSNode::searchParentLeaf(SSNode* node, const Point& target) {
  * @return SSNode*: Nuevo nodo raíz si se dividió, de lo contrario nullptr.
  */
 SSNode* SSNode::insert(SSNode* node, Data* _data) {
-    // TODO: Implementar inserción en el nodo.
-    throw std::runtime_error("Not implemented yet");
+    if (node->isLeaf)
+    {
+        for (const auto& data : node->_data)
+        {
+            if (data == _data) { return nullptr; }
+        }
+
+        node->_data.push_back(_data);
+        node->updateBoundingEnvelope();
+
+        if (node->_data.size() < node->maxPointsPerNode) { return nullptr; }
+    }
+    else
+    {
+        SSNode* closestChild = node->findClosestChild(_data->getEmbedding());
+        SSNode* newNode = node->insert(closestChild, _data);
+
+        if(newNode == nullptr) 
+        {
+            node->updateBoundingEnvelope();
+            return nullptr;
+        }
+
+        node->children.push_back(newNode);
+        node->updateBoundingEnvelope();
+
+        if (node->children.size() <= node->maxPointsPerNode) { return nullptr; }
+    }
+
+    return node->split();
 }
 
 
@@ -139,7 +169,7 @@ SSNode* SSNode::search(SSNode* node, Data* _data) {
             }
         }
     }
-    
+
     return nullptr;
 }
 
