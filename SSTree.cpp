@@ -42,8 +42,38 @@ SSNode* SSNode::findClosestChild(const Point& target) {
  * Actualiza el centroide y el radio del nodo basándose en los nodos internos o datos.
  */
 void SSNode::updateBoundingEnvelope() {
-    // TODO: Implementar actualización del sobre de delimitación.
-    throw std::runtime_error("Not implemented yet");
+    std::vector<Point> centroids = getEntriesCentroids();
+
+    float sum = 0.0f;
+    for (size_t i = 0; i < Point::getDimensions(); i++)
+    {
+        sum = 0.0f;
+        for (const auto& centroid : centroids) { sum += centroid[i]; }
+
+        float mean = sum / centroids.size();
+        centroid[i] = mean;
+    }
+
+    float maxEnvelope = 0.0f;
+    
+    if (isLeaf)
+    {
+        for (const auto& data : _data) {
+            float distance = Point::distance(this->centroid, data->getEmbedding());
+            maxEnvelope = std::max(maxEnvelope, distance);
+        }
+    }
+    else
+    {
+        for (const auto& child : children)
+        {
+            float distance = Point::distance(this->centroid, child->getCentroid());
+            float totalRadius = distance + child->getRadius();
+            maxEnvelope = std::max(maxEnvelope, totalRadius);
+        }
+    }
+
+    this->radius = maxEnvelope;
 }
 
 /**
