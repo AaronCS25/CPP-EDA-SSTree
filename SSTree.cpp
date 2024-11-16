@@ -17,8 +17,24 @@ bool SSNode::intersectsPoint(const Point& point) const {
  * @return SSNode*: Retorna un puntero al hijo más cercano.
  */
 SSNode* SSNode::findClosestChild(const Point& target) {
-    // TODO: Implementar búsqueda del hijo más cercano.
-    throw std::runtime_error("Not implemented yet");
+    assert(!isLeaf && "findClosestChild should only be called on internal nodes.");
+
+    float minDistance = std::numeric_limits<float>::max();
+    SSNode* closestChild = nullptr;
+
+    float distance;
+
+    for (const auto& child : children)
+    {
+        distance = Point::distance(child->getCentroid(), target);
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            closestChild = child;
+        }
+    }
+
+    return closestChild;
 }
 
 /**
