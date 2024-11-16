@@ -66,8 +66,7 @@ Point Point::random(float min, float max) {
 
 // Distancia entre dos puntos
 float Point::distance(const Point& a, const Point& b) {
-    // TODO: Implementar la distancia entre dos puntos
-    throw std::runtime_error("No implementado aún :c");
+    return (a - b).norm();
 }
 
 // Imprimir el punto
