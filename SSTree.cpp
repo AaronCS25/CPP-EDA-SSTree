@@ -52,8 +52,28 @@ void SSNode::updateBoundingEnvelope() {
  * @return size_t: Índice de la dirección de máxima varianza.
  */
 size_t SSNode::directionOfMaxVariance() {
-    // TODO: Implementar cálculo de la dirección de máxima varianza.
-    throw std::runtime_error("Not implemented yet");
+    float maxVariance = 0.0f;
+    size_t directionIndex = 0;
+    std::vector<Point> centroids = getEntriesCentroids();
+
+    for (size_t i = 0; i < Point::getDimensions(); i++)
+    {
+        std::vector<float> values;
+        for (const auto& centroid : centroids) { values.push_back(centroid[i]); }
+
+        float mean = std::accumulate(values.begin(), values.end(), 0.0f) / values.size();
+        float variance = 0.0f;
+        for (const auto& value : values) { variance += (value - mean) * (value - mean); }
+        variance /= values.size();
+
+        if (variance > maxVariance)
+        {
+            maxVariance = variance;
+            directionIndex = i;
+        }
+    }
+
+    return directionIndex;
 }
 
 /**

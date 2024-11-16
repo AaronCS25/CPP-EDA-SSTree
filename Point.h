@@ -30,6 +30,8 @@ public:
     float normSquared() const { return coordinates_.squaredNorm(); }
     float distance(const Point& other) const { return (*this - other).norm(); }
     float distanceSquared(const Point& other) const { return (*this - other).normSquared(); }
+    
+    static std::size_t getDimensions() { return DIM; }
 
     // Operadores de acceso
     float  operator[](std::size_t index) const { return coordinates_(index); }
