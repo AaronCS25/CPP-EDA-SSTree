@@ -113,8 +113,25 @@ size_t SSNode::directionOfMaxVariance() {
  * @return SSNode*: Puntero al nuevo nodo creado por la división.
  */
 SSNode* SSNode::split() {
-    // TODO: Implementar división del nodo.
-    throw std::runtime_error("Not implemented yet");
+    size_t splitIndex = this->findSplitIndex(this->directionOfMaxVariance());
+
+    SSNode* newNode = new SSNode(this->centroid, this->radius, this->isLeaf, this->parent);
+
+    if (this->isLeaf)
+    {   
+        newNode->_data = std::vector<Data*>(this->_data.begin() + splitIndex, this->_data.end());
+        this->_data = std::vector<Data*>(this->_data.begin(), this->_data.begin() + splitIndex);
+    }
+    else
+    {
+        newNode->children = std::vector<SSNode*>(this->children.begin() + splitIndex, this->children.end());
+        this->children = std::vector<SSNode*>(this->children.begin(), this->children.begin() + splitIndex);
+    }
+
+    this->updateBoundingEnvelope();
+    newNode->updateBoundingEnvelope();
+
+    return newNode;
 }
 
 /**
