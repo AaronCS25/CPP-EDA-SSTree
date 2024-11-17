@@ -173,8 +173,18 @@ size_t SSNode::findSplitIndex(size_t coordinateIndex) {
  * @return std::vector<Point>: Vector de centroides de las entradas.
  */
 std::vector<Point> SSNode::getEntriesCentroids() {
-    // TODO: Implementar obtención de centroides de las entradas.
-    throw std::runtime_error("Not implemented yet");
+    std::vector<Point> points;
+
+    if (this->isLeaf)
+    {
+        for (const auto& data : this->_data) { points.push_back(data->getEmbedding()); }
+    }
+    else
+    {
+        for (const auto& child : this->children) { points.push_back(child->getCentroid()); }
+    }
+
+    return points;    
 }
 
 
