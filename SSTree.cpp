@@ -195,8 +195,32 @@ std::vector<Point> SSNode::getEntriesCentroids() {
  * @return size_t: Índice de mínima varianza.
  */
 size_t SSNode::minVarianceSplit(const std::vector<float>& values) {
-    // TODO: Implementar búsqueda del índice de mínima varianza.
-    throw std::runtime_error("Not implemented yet");
+    size_t minVariance = std::numeric_limits<size_t>::max();
+    size_t splitIndex = 1;
+
+    float variance1 = 0.0f;
+    float variance2 = 0.0f;
+
+    float main = 0;
+
+    for (size_t i =  splitIndex; i < values.size(); i++)
+    {
+        main = std::accumulate(values.begin(), values.begin() + i, 0.0f) / i;
+        variance1 = 0.0f;
+        for (size_t j = 0; j < i; j++) { variance1 += (values[j] - main) * (values[j] - main); }
+
+        main = std::accumulate(values.begin() + i, values.end(), 0.0f) / (values.size() - i);
+        variance2 = 0.0f;
+        for (size_t j = i; j < values.size(); j++) { variance2 += (values[j] - main) * (values[j] - main); }        
+
+        if (variance1 + variance2 < minVariance)
+        {
+            minVariance = variance1 + variance2;
+            splitIndex = i;
+        }
+    }
+    
+    return splitIndex;
 }
 
 /**
