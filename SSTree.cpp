@@ -327,8 +327,20 @@ SSNode* SSTree::getRoot() const {
  * @param _data: Dato a insertar.
  */
 void SSTree::insert(Data* _data) {
-    // TODO: Implementar inserción en el árbol.
-    throw std::runtime_error("Not implemented yet");
+    if (root == nullptr) {
+        root = new SSNode(_data->getEmbedding(), 0.0f, true, nullptr);
+        return;
+    }
+
+    SSNode* newNode = root->insert(root, _data);
+    
+    if (newNode == nullptr) return;
+
+    SSNode* newRoot = new SSNode(root->getCentroid(), root->getRadius(), false, nullptr);
+    newRoot->pushNode(root);
+    newRoot->pushNode(newNode);
+
+    root = newRoot;
 }
 
 /**
