@@ -44,6 +44,8 @@ public:
     bool getIsLeaf() const { return isLeaf; }
     SSNode* getParent() const { return parent; }
 
+    void pushNode(SSNode* node) { children.push_back(node); }
+
     // Insertion
     SSNode* searchParentLeaf(SSNode* node, const Point& target);
     SSNode* insert(SSNode* node, Data* _data);
