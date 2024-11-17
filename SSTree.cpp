@@ -115,7 +115,7 @@ size_t SSNode::directionOfMaxVariance() {
 SSNode* SSNode::split() {
     size_t splitIndex = this->findSplitIndex(this->directionOfMaxVariance());
 
-    SSNode* newNode = new SSNode(this->centroid, this->radius, this->isLeaf, this->parent);
+    SSNode* newNode = new SSNode(this->centroid, maxPointsPerNode, this->radius, this->isLeaf, this->parent);
 
     if (this->isLeaf)
     {   
@@ -328,7 +328,7 @@ SSNode* SSTree::getRoot() const {
  */
 void SSTree::insert(Data* _data) {
     if (root == nullptr) {
-        root = new SSNode(_data->getEmbedding(), 0.0f, true, nullptr);
+        root = new SSNode(_data->getEmbedding(), maxPointsPerNode, 0.0f, true, nullptr);
         return;
     }
 
@@ -336,7 +336,7 @@ void SSTree::insert(Data* _data) {
     
     if (newNode == nullptr) return;
 
-    SSNode* newRoot = new SSNode(root->getCentroid(), root->getRadius(), false, nullptr);
+    SSNode* newRoot = new SSNode(root->getCentroid(), maxPointsPerNode, root->getRadius(), false, nullptr);
     newRoot->pushNode(root);
     newRoot->pushNode(newNode);
 

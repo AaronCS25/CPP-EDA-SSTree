@@ -10,13 +10,13 @@
 
 class SSNode {
 private:
-    size_t maxPointsPerNode;
     Point centroid;
     float radius;
     bool isLeaf;
     SSNode* parent;
     std::vector<SSNode*> children;
     std::vector<Data*> _data;
+    size_t maxPointsPerNode;
     
     // For searching
     SSNode* findClosestChild(const Point& target);
@@ -30,8 +30,8 @@ private:
     size_t minVarianceSplit(const std::vector<float>& values);
     
 public:
-    SSNode(const Point& centroid, float radius=0.0f, bool isLeaf=true, SSNode* parent=nullptr)
-        : centroid(centroid), radius(radius), isLeaf(isLeaf), parent(parent) {}
+    SSNode(const Point& centroid, size_t maxPointPerNode, float radius=0.0f, bool isLeaf=true, SSNode* parent=nullptr)
+        : centroid(centroid), radius(radius), isLeaf(isLeaf), parent(parent), maxPointsPerNode(maxPointPerNode) {}
 
     // Checks if a point is inside the bounding sphere
     bool intersectsPoint(const Point& point) const;
