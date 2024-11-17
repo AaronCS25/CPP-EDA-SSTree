@@ -224,8 +224,6 @@ size_t SSNode::minVarianceSplit(const std::vector<float>& values) {
     float variance1 = 0.0f;
     float variance2 = 0.0f;
 
-    float main = 0;
-
     for (size_t i =  splitIndex; i < values.size() - splitIndex; i++)
     {
         variance1 = variance(std::vector<float>(values.begin(), values.begin() + i));
@@ -354,7 +352,6 @@ SSNode* SSTree::getRoot() const {
 void SSTree::insert(Data* _data) {
     if (root == nullptr) {
         root = new SSNode(_data->getEmbedding(), maxPointsPerNode, 0.0f, true, nullptr);
-        return;
     }
 
     auto [newNode1, newNode2] = root->insert(root, _data);

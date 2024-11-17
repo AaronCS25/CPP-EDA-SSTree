@@ -70,4 +70,4 @@ public:
     SSNode* getRoot() const;
 };
 
-#endif SSTREE_H
+#endif //SSTREE_H
