@@ -141,8 +141,29 @@ SSNode* SSNode::split() {
  * @return size_t: Índice de la división.
  */
 size_t SSNode::findSplitIndex(size_t coordinateIndex) {
-    // TODO: Implementar búsqueda del índice de división.
-    throw std::runtime_error("Not implemented yet");
+
+    std::vector<float> points;
+    
+    if (isLeaf) {
+        std::sort(_data.begin(), _data.end(), [coordinateIndex](Data* a, Data* b) {
+            return a->getEmbedding()[coordinateIndex] < b->getEmbedding()[coordinateIndex];
+        });
+
+        points = std::vector<float>(_data.size());
+        for (size_t i = 0; i < _data.size(); i++) {
+            points[i] = _data[i]->getEmbedding()[coordinateIndex];
+        }
+    } else {
+        std::sort(children.begin(), children.end(), [coordinateIndex](SSNode* a, SSNode* b) {
+            return a->getCentroid()[coordinateIndex] < b->getCentroid()[coordinateIndex];
+        });
+        points = std::vector<float>(children.size());
+        for (size_t i = 0; i < children.size(); i++) {
+            points[i] = children[i]->getCentroid()[coordinateIndex];
+        }
+    }
+
+    return minVarianceSplit(points);
 }
 
 /**
