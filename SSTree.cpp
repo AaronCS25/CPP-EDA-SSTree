@@ -219,7 +219,7 @@ size_t SSNode::minVarianceSplit(const std::vector<float>& values) {
             splitIndex = i;
         }
     }
-    
+
     return splitIndex;
 }
 
@@ -318,8 +318,7 @@ SSNode* SSNode::search(SSNode* node, Data* _data) {
  * @return SSNode*: Nodo raíz del árbol.
  */
 SSNode* SSTree::getRoot() const {
-    // TODO: Implementar obtención del nodo raíz.
-    throw std::runtime_error("Not implemented yet");
+    return root;
 }
 
 /**
