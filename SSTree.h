@@ -8,6 +8,8 @@
 #include "Point.h"
 #include "Data.h"
 
+class SSTree;
+
 class SSNode {
 private:
     Point centroid;
@@ -24,10 +26,12 @@ private:
     // For insertion
     void updateBoundingEnvelope();
     size_t directionOfMaxVariance();
-    SSNode* split();
+    std::pair<SSNode*, SSNode*> split();
     size_t findSplitIndex(size_t coordinateIndex);
     std::vector<Point> getEntriesCentroids();
     size_t minVarianceSplit(const std::vector<float>& values);
+
+    friend class SSTree;
     
 public:
     SSNode(const Point& centroid, size_t maxPointPerNode, float radius=0.0f, bool isLeaf=true, SSNode* parent=nullptr)
@@ -44,11 +48,9 @@ public:
     bool getIsLeaf() const { return isLeaf; }
     SSNode* getParent() const { return parent; }
 
-    void pushNode(SSNode* node) { children.push_back(node); }
-
     // Insertion
     SSNode* searchParentLeaf(SSNode* node, const Point& target);
-    SSNode* insert(SSNode* node, Data* _data);
+    std::pair<SSNode*,SSNode*> insert(SSNode* node, Data* _data);
 
     // Search
     SSNode* search(SSNode* node, Data* _data);
@@ -68,4 +70,4 @@ public:
     SSNode* getRoot() const;
 };
 
-#endif // SSTREE_H
+#endif SSTREE_H
