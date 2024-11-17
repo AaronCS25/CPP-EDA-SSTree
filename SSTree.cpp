@@ -19,7 +19,7 @@ bool SSNode::intersectsPoint(const Point& point) const {
 SSNode* SSNode::findClosestChild(const Point& target) {
     assert(!isLeaf && "findClosestChild should only be called on internal nodes.");
 
-    float minDistance = std::numeric_limits<float>::max();
+    float minDistance = std::numeric_limits<float>::infinity();
     SSNode* closestChild = nullptr;
 
     float distance;
@@ -84,17 +84,22 @@ void SSNode::updateBoundingEnvelope() {
 size_t SSNode::directionOfMaxVariance() {
     float maxVariance = 0.0f;
     size_t directionIndex = 0;
+    float mean = 0.0f;
+    float variance = 0.0f;
+
     std::vector<Point> centroids = getEntriesCentroids();
 
     for (size_t i = 0; i < Point::getDimensions(); i++)
     {
-        std::vector<float> values;
-        for (const auto& centroid : centroids) { values.push_back(centroid[i]); }
+        //* Calculating the mean
+        mean = 0.0f;
+        for (const auto& centroid : centroids) { mean += centroid[i]; }
+        mean = mean / centroids.size();
 
-        float mean = std::accumulate(values.begin(), values.end(), 0.0f) / values.size();
-        float variance = 0.0f;
-        for (const auto& value : values) { variance += (value - mean) * (value - mean); }
-        variance /= values.size();
+        //* Calculating the variance
+        variance = 0.0f;
+        for (const auto& centroid : centroids) { variance += (centroid[i] - mean) * (centroid[i] - mean); }
+        variance = variance / centroids.size();
 
         if (variance > maxVariance)
         {
@@ -115,15 +120,17 @@ size_t SSNode::directionOfMaxVariance() {
 SSNode* SSNode::split() {
     size_t splitIndex = this->findSplitIndex(this->directionOfMaxVariance());
 
-    SSNode* newNode = new SSNode(this->centroid, maxPointsPerNode, this->radius, this->isLeaf, this->parent);
+    SSNode* newNode = new SSNode(this->centroid, this->maxPointsPerNode, this->radius, this->isLeaf, this->parent);
 
     if (this->isLeaf)
     {   
+        newNode->isLeaf = true;
         newNode->_data = std::vector<Data*>(this->_data.begin() + splitIndex, this->_data.end());
         this->_data = std::vector<Data*>(this->_data.begin(), this->_data.begin() + splitIndex);
     }
     else
     {
+        newNode->isLeaf = false;
         newNode->children = std::vector<SSNode*>(this->children.begin() + splitIndex, this->children.end());
         this->children = std::vector<SSNode*>(this->children.begin(), this->children.begin() + splitIndex);
     }
@@ -141,30 +148,20 @@ SSNode* SSNode::split() {
  * @return size_t: Índice de la división.
  */
 size_t SSNode::findSplitIndex(size_t coordinateIndex) {
-
-    std::vector<float> points;
     
-    if (isLeaf) {
-        std::sort(_data.begin(), _data.end(), [coordinateIndex](Data* a, Data* b) {
-            return a->getEmbedding()[coordinateIndex] < b->getEmbedding()[coordinateIndex];
-        });
+    std::vector<Point> centroids = getEntriesCentroids();
 
-        points = std::vector<float>(_data.size());
-        for (size_t i = 0; i < _data.size(); i++) {
-            points[i] = _data[i]->getEmbedding()[coordinateIndex];
-        }
-    } else {
-        std::sort(children.begin(), children.end(), [coordinateIndex](SSNode* a, SSNode* b) {
-            return a->getCentroid()[coordinateIndex] < b->getCentroid()[coordinateIndex];
-        });
-        points = std::vector<float>(children.size());
-        for (size_t i = 0; i < children.size(); i++) {
-            points[i] = children[i]->getCentroid()[coordinateIndex];
-        }
-    }
+    std::sort(centroids.begin(), centroids.end(), [coordinateIndex](const Point& a, const Point& b) {
+        return a[coordinateIndex] < b[coordinateIndex];
+    });
+
+    std::vector<float> points(centroids.size());
+    std::transform(centroids.begin(), centroids.end(), points.begin(),
+                   [coordinateIndex](const Point& point) { return point[coordinateIndex]; });
 
     return minVarianceSplit(points);
 }
+
 
 /**
  * getEntriesCentroids
