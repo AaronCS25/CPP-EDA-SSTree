@@ -374,3 +374,91 @@ void SSTree::insert(Data* _data) {
 SSNode* SSTree::search(Data* _data) {
     return root->search(root, _data);
 }
+
+/**
+ * depthFirstSearch
+ * Realiza una búsqueda en profundidad en el árbol.
+ * @param q: Punto de consulta.
+ * @param k: Número de vecinos más cercanos a buscar.
+ * @param e: Nodo actual.
+ * @param pq: Cola de prioridad para almacenar los vecinos más cercanos.
+ * @param Dk: Distancia al k-ésimo vecino más cercano.
+ */
+void SSNode::depthFirstSearch( const Point& q, const int& k, SSNode* e, std::priority_queue<Data*, std::vector<Data*>, PQCompare>& L, float& Dk) {
+    
+    if (e->isLeaf)
+    {
+        float queryToCentroid = Point::distance(e->getCentroid(), q);
+
+        for (const Data* data : e->_data) {
+
+            float dataToCentroid = Point::distance(data->getEmbedding(), e->getCentroid());
+
+            if (queryToCentroid - dataToCentroid > Dk || 
+                dataToCentroid - queryToCentroid > Dk) continue;
+
+            float queryToData = Point::distance(data->getEmbedding(), q);
+            if (queryToData < Dk) {
+                L.push(const_cast<Data*>(data));
+                if (static_cast<int>(L.size()) > k) L.pop();
+                if (static_cast<int>(L.size()) == k) Dk = Point::distance(L.top()->getEmbedding(), q);
+            }
+        }
+    } 
+    else
+    {
+        std::sort(
+            e->children.begin(), e->children.end(),
+            [&q](SSNode* a, SSNode* b) {
+                return Point::distance(a->getCentroid(), q) < Point::distance(b->getCentroid(), q);
+            }
+        );
+        
+        if (k == 1) {
+            for (SSNode* child : e->children) {
+
+                float distToCentroid = Point::distance(child->getCentroid(), q);
+                if (distToCentroid > Dk) break;
+                if (distToCentroid + child->getRadius() < Dk) {
+                    Dk = distToCentroid + child->getRadius();
+                    continue;
+                }
+                depthFirstSearch(q, k, child, L, Dk);
+            }
+        } else {
+            for (SSNode* child : e->children) {
+                float distToCentroid = Point::distance(child->getCentroid(), q);
+                if (distToCentroid - child->getRadius() > Dk) continue;
+                if (child->getRadius() - distToCentroid > Dk) continue;
+                depthFirstSearch(q, k, child, L, Dk);
+            }
+        }
+    }
+
+    return;
+}
+
+/**
+ * depthFirstSearch
+ * Realiza una búsqueda en profundidad en el árbol.
+ * @param q: Punto de consulta.
+ * @return std::vector<Data*>: Vector de datos que se encuentran en la búsqueda.
+ */
+// Implementación de SSTree::depthFirstSearch
+std::vector<Data*> SSTree::depthFirstSearch(const Point& q, const int& k) const {
+    PQCompare comparator(q);
+    std::priority_queue<Data*, std::vector<Data*>, PQCompare> L(comparator);
+    float Dk = std::numeric_limits<float>::infinity();
+
+    if (root) {
+        root->depthFirstSearch(q, k, root, L, Dk);
+    }
+
+    std::vector<Data*> result;
+    while (!L.empty()) {
+        result.push_back(L.top());
+        L.pop();
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}

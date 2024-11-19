@@ -6,7 +6,7 @@
 #include "Data.h"
 #include "SSTree.h"
 
-constexpr size_t NUM_POINTS = 6;
+constexpr size_t NUM_POINTS = 20000;
 constexpr size_t MAX_POINTS_PER_NODE = 20;
 
 /*
@@ -139,25 +139,45 @@ bool sphereCoversAllChildrenSpheres(SSNode* root) {
     return dfsSphereCoversAllChildrenSpheres(root);
 }
 
+bool correctKnnSearch(const SSTree &tree, std::vector<Data *> &data) {
+    Point query = Point::random();
+    size_t k = 1;
+    auto resultUsingTree = tree.depthFirstSearch(query, k);
+    std::sort(data.begin(), data.end(), [&query](Data *a, Data *b) {
+        return a->getEmbedding().distance(query) < b->getEmbedding().distance(query);
+    });
+    data.resize(k);
+    for (size_t i = 0; i < data.size(); ++i) {
+        if (data[i] != resultUsingTree[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 int main() {
     auto data = generateRandomData(NUM_POINTS);
     SSTree tree(MAX_POINTS_PER_NODE);
-    for (const auto& d : data) {
+    for (const auto &d: data) {
         tree.insert(d);
     }
 
     // Realizar pruebas
-    bool allPresent     = allDataPresent(tree, data);
-    bool sameLevel      = leavesAtSameLevel(tree.getRoot());
-    bool noExceed       = noNodeExceedsMaxChildren(tree.getRoot(), MAX_POINTS_PER_NODE);
-    bool spherePoints   = sphereCoversAllPoints(tree.getRoot());
+    bool allPresent = allDataPresent(tree, data);
+    bool sameLevel = leavesAtSameLevel(tree.getRoot());
+    bool noExceed = noNodeExceedsMaxChildren(tree.getRoot(), MAX_POINTS_PER_NODE);
+    bool spherePoints = sphereCoversAllPoints(tree.getRoot());
     bool sphereChildren = sphereCoversAllChildrenSpheres(tree.getRoot());
-    
+    bool testKnn = correctKnnSearch(tree, data);
+
     std::cout << "Todos los datos presentes: " << (allPresent ? "Sí" : "No") << std::endl;
     std::cout << "Nodos hojas en el mismo nivel: " << (sameLevel ? "Sí" : "No") << std::endl;
     std::cout << "No se supera el límite de hijos por nodo: " << (noExceed ? "Sí" : "No") << std::endl;
     std::cout << "Hiper-esfera cubre todos los puntos de los nodos hoja: " << (spherePoints ? "Sí" : "No") << std::endl;
-    std::cout << "Hiper-esfera cubre todas las hiper-esferas internas de los nodos internos: " << (sphereChildren ? "Sí" : "No") << std::endl;
+    std::cout << "Hiper-esfera cubre todas las hiper-esferas internas de los nodos internos: "
+              << (sphereChildren ? "Sí" : "No") << std::endl;
+    std::cout << "Hace búsqueda KNN: " << (testKnn ? "Sí" : "No") << std::endl;
     std::cout << "Happy ending! :D" << std::endl;
 
     return 0;

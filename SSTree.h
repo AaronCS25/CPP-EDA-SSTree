@@ -64,7 +64,7 @@ public:
 
     // Search
     SSNode* search(SSNode* node, Data* _data);
-    std::vector<Data*> depthFirstSearch(const Point& q, const int& k, SSNode* e, std::priority_queue<Data*, std::vector<Data*>, PQCompare>& pq, float& Dk);
+    void depthFirstSearch(const Point& q, const int& k, SSNode* e, std::priority_queue<Data*, std::vector<Data*>, PQCompare>& pq, float& Dk);
 };
 
 class SSTree {
