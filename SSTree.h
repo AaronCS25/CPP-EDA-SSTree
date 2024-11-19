@@ -4,11 +4,21 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <queue>
 #include <numeric>
 #include "Point.h"
 #include "Data.h"
 
 class SSTree;
+
+struct PQCompare {
+    Point query;
+    PQCompare(Point query): query(query) {}
+
+    bool operator()(const Data* data1, const Data* data2) {
+        return Point::distance(data1->getEmbedding(), query) < Point::distance(data2->getEmbedding(), query);
+    }
+};
 
 class SSNode {
 private:
@@ -54,6 +64,7 @@ public:
 
     // Search
     SSNode* search(SSNode* node, Data* _data);
+    std::vector<Data*> depthFirstSearch(const Point& q, const int& k, SSNode* e, std::priority_queue<Data*, std::vector<Data*>, PQCompare>& pq, float& Dk);
 };
 
 class SSTree {
@@ -68,6 +79,7 @@ public:
     void insert(Data* _data);
     SSNode* search(Data* _data);
     SSNode* getRoot() const;
+    std::vector<Data*> depthFirstSearch(const Point& q, const int& k) const;
 };
 
 #endif //SSTREE_H
