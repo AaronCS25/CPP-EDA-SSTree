@@ -413,7 +413,7 @@ void SSNode::depthFirstSearch( const Point& q, const int& k, SSNode* e, std::pri
                 return Point::distance(a->getCentroid(), q) < Point::distance(b->getCentroid(), q);
             }
         );
-        
+
         if (k == 1) {
             for (SSNode* child : e->children) {
 
@@ -425,14 +425,15 @@ void SSNode::depthFirstSearch( const Point& q, const int& k, SSNode* e, std::pri
                 }
                 depthFirstSearch(q, k, child, L, Dk);
             }
-        } else {
-            for (SSNode* child : e->children) {
-                float distToCentroid = Point::distance(child->getCentroid(), q);
-                if (distToCentroid - child->getRadius() > Dk) continue;
-                if (child->getRadius() - distToCentroid > Dk) continue;
-                depthFirstSearch(q, k, child, L, Dk);
-            }
         }
+
+        for (SSNode* child : e->children) {
+            float distToCentroid = Point::distance(child->getCentroid(), q);
+            if (distToCentroid - child->getRadius() > Dk) continue;
+            if (child->getRadius() - distToCentroid > Dk) continue;
+            depthFirstSearch(q, k, child, L, Dk);   
+        }
+
     }
 
     return;
