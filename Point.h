@@ -9,6 +9,8 @@
 constexpr std::size_t DIM = 768;
 constexpr float EPSILON = 1e-8f;
 
+class SSNode;
+
 class Point {
 public:
     // Constructores
@@ -46,6 +48,8 @@ public:
 
 private:
     Eigen::VectorXf coordinates_;
+
+    friend class SSNode;
 };
 
 #endif // POINT_H
