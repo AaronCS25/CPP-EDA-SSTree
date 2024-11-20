@@ -64,6 +64,7 @@ void SSNode::updateBoundingEnvelope() {
         for (const Data* data : _data) {
             float distance = Point::distance(this->centroid, data->getEmbedding());
             maxEnvelope = std::max(maxEnvelope, distance);
+            this->minRadius = std::min(minRadius, distance);
         }
     }
     else
@@ -73,6 +74,7 @@ void SSNode::updateBoundingEnvelope() {
             float distance = Point::distance(this->centroid, child->getCentroid());
             float totalRadius = distance + child->getRadius();
             maxEnvelope = std::max(maxEnvelope, totalRadius);
+            this->minRadius = std::min(minRadius, distance - child->getRadius());
         }
     }
 
@@ -132,8 +134,8 @@ std::pair<SSNode*, SSNode*> SSNode::split() {
 
     size_t splitIndex = this->findSplitIndex(this->directionOfMaxVariance());
 
-    SSNode* newNode1 = new SSNode(this->centroid, this->maxPointsPerNode, this->radius, this->isLeaf, this->parent);
-    SSNode* newNode2 = new SSNode(this->centroid, this->maxPointsPerNode, this->radius, this->isLeaf, this->parent);
+    SSNode* newNode1 = new SSNode(this->centroid, this->maxPointsPerNode, this->radius, this->minRadius, this->isLeaf, this->parent);
+    SSNode* newNode2 = new SSNode(this->centroid, this->maxPointsPerNode, this->radius, this->minRadius, this->isLeaf, this->parent);
 
     if (this->isLeaf)
     {
@@ -351,13 +353,13 @@ SSNode* SSTree::getRoot() const {
  */
 void SSTree::insert(Data* _data) {
     if (root == nullptr) {
-        root = new SSNode(_data->getEmbedding(), maxPointsPerNode, 0.0f, true, nullptr);
+        root = new SSNode(_data->getEmbedding(), maxPointsPerNode, 0.0f, 0.0f, true, nullptr);
     }
 
     auto [newNode1, newNode2] = root->insert(root, _data);
     if (newNode1 == nullptr) return;
 
-    SSNode* newRoot = new SSNode(root->getCentroid(), maxPointsPerNode, root->getRadius(), false, nullptr);
+    SSNode* newRoot = new SSNode(root->getCentroid(), maxPointsPerNode, root->getRadius(), root->minRadius, false, nullptr);
     newRoot->children.push_back(newNode1);
     newRoot->children.push_back(newNode2);
 

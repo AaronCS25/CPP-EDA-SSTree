@@ -6,7 +6,7 @@
 #include "Data.h"
 #include "SSTree.h"
 
-constexpr size_t NUM_POINTS = 10000;
+constexpr size_t NUM_POINTS = 1000;
 constexpr size_t MAX_POINTS_PER_NODE = 20;
 
 /*

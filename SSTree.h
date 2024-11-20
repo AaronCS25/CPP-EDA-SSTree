@@ -24,6 +24,7 @@ class SSNode {
 private:
     Point centroid;
     float radius;
+    float minRadius;
     bool isLeaf;
     SSNode* parent;
     std::vector<SSNode*> children;
@@ -44,8 +45,8 @@ private:
     friend class SSTree;
     
 public:
-    SSNode(const Point& centroid, size_t maxPointPerNode, float radius=0.0f, bool isLeaf=true, SSNode* parent=nullptr)
-        : centroid(centroid), radius(radius), isLeaf(isLeaf), parent(parent), maxPointsPerNode(maxPointPerNode) {}
+    SSNode(const Point& centroid, size_t maxPointPerNode, float radius=0.0f, float minRadius=0.0f, bool isLeaf=true, SSNode* parent=nullptr)
+        : centroid(centroid), radius(radius), minRadius(minRadius), isLeaf(isLeaf), parent(parent), maxPointsPerNode(maxPointPerNode) {}
 
     // Checks if a point is inside the bounding sphere
     bool intersectsPoint(const Point& point) const;
