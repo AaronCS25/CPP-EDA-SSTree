@@ -48,14 +48,14 @@ void SSNode::updateBoundingEnvelope() {
 
     if (centroids.empty()) return;
 
-    for (size_t i = 0; i < DIM; i++)
-    {
-        float sum = 0.0f;
-        for (const auto& centroid : centroids) { sum += centroid[i]; }
+    Eigen::VectorXf centroidCoordinates = Eigen::VectorXf::Zero(DIM);
 
-        float mean = sum / centroids.size();
-        centroid[i] = mean;
+    for (const auto& centroid : centroids) {
+        centroidCoordinates += centroid.coordinates_;
     }
+    
+    centroidCoordinates /= centroids.size();
+    centroid = Point(centroidCoordinates);
 
     float maxEnvelope = 0.0f;
 
@@ -421,8 +421,8 @@ void SSNode::depthFirstSearch( const Point& q, const int& k, SSNode* e, std::pri
 
                 float distToCentroid = Point::distance(child->getCentroid(), q);
                 if (distToCentroid > Dk) break;
-                if (distToCentroid + child->getRadius() < Dk) {
-                    Dk = distToCentroid + child->getRadius();
+                if (distToCentroid + child->minRadius < Dk) {
+                    Dk = distToCentroid + child->minRadius;
                     continue;
                 }
                 depthFirstSearch(q, k, child, L, Dk);
@@ -432,7 +432,7 @@ void SSNode::depthFirstSearch( const Point& q, const int& k, SSNode* e, std::pri
         for (SSNode* child : e->children) {
             float distToCentroid = Point::distance(child->getCentroid(), q);
             if (distToCentroid - child->getRadius() > Dk) continue;
-            if (child->getRadius() - distToCentroid > Dk) continue;
+            if (child->minRadius - distToCentroid > Dk) continue;
             depthFirstSearch(q, k, child, L, Dk);   
         }
 
